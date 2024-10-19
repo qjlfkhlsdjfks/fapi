@@ -1,37 +1,21 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 
-from enum import Enum
+from pydantic import BaseModel
+from typing import Annotated
+
+
+class Item(BaseModel):
+    price: int
+    desc: str | None = None
+    to: str
+    tax: int | None =  None
 
 
 app = FastAPI()
 
 
-class Item(str, Enum):
-    wtf = 'wtf'
-    qqq = 'qqq'
-    www = 'www'
-
-
-@app.get('/')
-async def root():
-    return {
-        "message": "Hello world"
-    }
-
-
-@app.get('/items/{item_name}')
-async def read_item(item_name: Item):
-    if item_name is Item.wtf:
-        return {
-            'item_name': item_name,
-            'message': 'And why?',
-        }
-    if item_name is Item.www:
-        return {
-            'item_name': item_name,
-            'message': 'www?',
-        }
-    return {
-        'item_name': item_name,
-        'message': 'You trash//',
-    }
+@app.get("/items/")
+async def read_items(q: Annotated[list[str] | None, Query()] = ['foo', 'bar']):
+    query_items = {'q': q}
+    
+    return query_items
